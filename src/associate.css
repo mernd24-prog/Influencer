@@ -1,0 +1,35 @@
+.heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.associate-form { padding: 20px; }
+.create-associate-modal { width: min(680px, 100%); }
+.created-credentials { display: grid; gap: 12px; padding: 24px; }
+.created-credentials h3,
+.created-credentials p { margin: 0; }
+.created-credentials p { color: #777487; font-size: 11px; }
+.created-credentials > div {
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  border: 1px solid #eadfce;
+  border-radius: 6px;
+  background: #fffdf8;
+}
+.created-credentials span { color: #777487; font-size: 9px; text-transform: uppercase; }
+.created-credentials strong { font-size: 13px; }
+.created-credentials .button { justify-self: end; }
+.single-code-card{display:grid;grid-template-columns:minmax(280px,.8fr) minmax(0,1.5fr);overflow:hidden;border:1px solid #e4dccb;border-radius:8px;background:#fff}.single-code-primary{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:230px;padding:28px;border-right:1px solid #eadfce;background:linear-gradient(145deg,#fff9eb,#fff)}.single-code-primary>span{color:#777487;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}.single-code-primary>strong{margin:10px 0 18px;color:#1f1b5f;font-size:34px;letter-spacing:.08em}.single-code-primary>small{max-width:360px;margin-top:16px;color:#777487;font-size:11px;line-height:1.6}.single-code-actions{display:flex;gap:8px}.single-code-actions .button{display:inline-flex;align-items:center;gap:7px}.single-code-performance{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:center;padding:18px 24px}.single-code-performance>div{min-height:82px;padding:16px;border-bottom:1px solid #f0ece3}.single-code-performance>div:last-child{grid-column:1/-1}.single-code-performance span{display:block;color:#777487;font-size:10px;text-transform:uppercase}.single-code-performance strong{display:block;margin-top:8px;color:#22202b;font-size:20px}.single-code-performance .status-pill{display:inline-flex;margin-top:8px;font-size:10px}
+.bonus-target-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.bonus-target-card{padding:18px;border:1px solid #eadfce;border-radius:8px;background:#fff}.bonus-target-card.released,.bonus-target-card.achieved{border-left:4px solid #37b446}.bonus-target-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.bonus-target-head>div>span{color:#777487;font-size:9px;text-transform:uppercase}.bonus-target-head h2{margin:5px 0 0;color:#22202b;font-size:15px}.bonus-progress-line{height:8px;margin:20px 0 8px;overflow:hidden;border-radius:999px;background:#eeeef3}.bonus-progress-line span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#dca719,#37b446)}.bonus-progress-values{display:flex;align-items:center;justify-content:space-between;color:#777487;font-size:10px}.bonus-progress-values strong{color:#34318b;font-size:12px}.bonus-target-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid #f0ece3}.bonus-target-meta span,.associate-performance span,.associate-identity>div span{display:block;color:#777487;font-size:9px;text-transform:uppercase}.bonus-target-meta strong,.associate-performance strong{display:block;margin-top:5px;color:#34313c;font-size:11px}.associate-summary-card{padding:22px;border:1px solid #eadfce;border-radius:8px;background:#fff}.associate-identity{display:flex;align-items:center;gap:13px}.associate-avatar{width:48px;height:48px;display:grid;place-items:center;border-radius:50%;background:#f2e8cc;color:#1f1b5f;font-size:20px;font-weight:700}.associate-identity h2{margin:3px 0;color:#22202b;font-size:17px}.associate-identity p{margin:0;color:#777487;font-size:11px}.associate-identity>.status-pill{margin-left:auto}.associate-performance{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin:20px 0;border:1px solid #eee9de;border-radius:7px}.associate-performance>div{padding:14px;border-right:1px solid #eee9de}.associate-performance>div:last-child{border-right:0}.associate-detail-button{display:flex;margin-left:auto}
+.resource-table-heading{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eadfce}.resource-table-heading>div{display:flex;align-items:baseline;gap:9px}.resource-table-heading strong{color:#22202b;font-size:14px}.resource-table-heading span{color:#777487;font-size:10px}.view-action{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border:1px solid #dfe2e8;border-radius:6px;background:#fff;color:#34318b;font-size:10px;font-weight:600;cursor:pointer}.view-action:hover{border-color:#b8b4d8;background:#f7f6ff}.status-pill.in_progress{background:#fff7df;color:#9a6700}.status-pill.achieved,.status-pill.released{background:#ecfdf3;color:#15803d}
+
+@media (max-width: 600px) {
+  .heading-actions { align-items: stretch; flex-direction: column; }
+  .page-heading { align-items: flex-start; }
+  .associate-form { padding: 16px; }
+  .single-code-card{grid-template-columns:1fr}.single-code-primary{min-height:auto;border-right:0;border-bottom:1px solid #eadfce}.single-code-performance{grid-template-columns:1fr;padding:10px 16px}.single-code-performance>div:last-child{grid-column:auto}
+  .bonus-target-grid{grid-template-columns:1fr}.bonus-target-meta{grid-template-columns:1fr}.associate-performance{grid-template-columns:1fr}.associate-performance>div{border-right:0;border-bottom:1px solid #eee9de}.associate-performance>div:last-child{border-bottom:0}
+}
+.payout-flow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 20px;padding:12px 14px;border:1px solid #e8e3d8;border-radius:8px;background:#faf8f3;color:#57516b;font-size:12px;font-weight:600}.payout-flow svg{color:#c59622}.payout-estimate{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border:1px solid #e4d7b8;border-radius:8px;background:#fffaf0}.payout-estimate span{font-size:11px;font-weight:700;text-transform:uppercase;color:#777487}.payout-estimate strong{font-size:22px;color:#1f1b5f}.payout-estimate small{color:#777487}.table-scroll td small.block{display:block;margin-top:3px;color:#777487;font-size:11px}
