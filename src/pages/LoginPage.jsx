@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { api, endpoints, tokens, unwrap } from "../api";
 import BrandLogo from "../components/BrandLogo";
+import { Link } from "react-router-dom";
 
 export default function LoginPage({ onLogin }) {
   const [form, setForm] = useState({
@@ -191,7 +192,7 @@ export default function LoginPage({ onLogin }) {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
-                maxLength={16}
+                maxLength={64}
                 value={form.password}
                 onChange={handleChange}
                 placeholder="••••••••"
@@ -219,7 +220,7 @@ export default function LoginPage({ onLogin }) {
             ) : (
               <div className="mt-2 flex items-center justify-between">
                 <p className="m-0 text-[10px] text-[#9ca3af]">
-                  Maximum 16 characters
+                  8–64 characters
                 </p>
 
                 <div className="flex items-center gap-1 text-[10px] font-medium text-[#7c7465]">
@@ -229,6 +230,7 @@ export default function LoginPage({ onLogin }) {
               </div>
             )}
           </div>
+          <div className="mt-3 text-right"><Link to="/forgot-password" className="text-xs font-semibold text-[#211b62] hover:text-[#c28a13]">Forgot password?</Link></div>
 
           {/* API Error */}
           {error && (

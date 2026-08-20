@@ -58,6 +58,9 @@ api.interceptors.response.use((response) => response, async (error) => {
 export const unwrap = (response) => response?.data?.data ?? response?.data;
 export const endpoints = {
   login: "/auth/influencer/login",
+  forgotPassword: "/auth/influencer/forgot-password",
+  verifyResetOtp: "/auth/influencer/verify-reset-otp",
+  resetPassword: "/auth/influencer/reset-password",
   session: "/influencer/referral/session",
   dashboard: "/influencer/referral/dashboard/summary",
   codes: "/influencer/referral/codes",

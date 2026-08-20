@@ -4,6 +4,7 @@ import { api, endpoints, tokens, unwrap } from "./api";
 import Panel from "./Panel";
 import { getAllowedPanelModules, getDefaultPanelRoute } from "./panelConfig";
 import LoginPage from "./pages/LoginPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 export default function App() {
   const [session, setSession] = useState(null);
@@ -24,6 +25,7 @@ export default function App() {
 
   return <Routes>
     <Route path="/login" element={session ? <Navigate to={home} replace /> : <LoginPage onLogin={loadSession} />} />
+    <Route path="/forgot-password" element={session ? <Navigate to={home} replace /> : <ForgotPasswordPage />} />
     <Route path="/app/*" element={session ? <Panel session={session} onLogout={() => { tokens.clear(); setSession(null); }} /> : <Navigate to="/login" replace />} />
     <Route path="*" element={<Navigate to={home} replace />} />
   </Routes>;
