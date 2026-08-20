@@ -2,7 +2,6 @@ import { useState } from "react";
 
 import {
   Coins,
-  Copy,
   IndianRupee,
   ShoppingBag,
   UserRound,
@@ -10,9 +9,13 @@ import {
   WalletCards,
   X,
 } from "lucide-react";
+import { TableSkeleton } from "./Skeleton";
+import NoDataState from "./NoDataState";
+import SectionCard from "./SectionCard";
+import SummaryCard from "./SummaryCard";
+import CopyButton from "./CopyButton";
 
 import {
-  copyText,
   formatDate,
   formatLabel,
   formatNumber,
@@ -42,18 +45,6 @@ const format = (value, kind) => {
   return formatValue(value, kind);
 };
 
-function LoadingTable() {
-  return (
-    <div className="grid gap-3 p-5">
-      {[1, 2, 3, 4].map((item) => (
-        <div
-          key={item}
-          className="h-10 animate-pulse rounded-md bg-gray-100"
-        />
-      ))}
-    </div>
-  );
-}
 
 function CopyDetail({
   label,
@@ -70,19 +61,17 @@ function CopyDetail({
         {label}
       </span>
 
-      <strong className="mt-2 block overflow-hidden text-ellipsis text-[12px] font-medium text-gray-700">
+      <strong className="mt-2 block overflow-hidden text-ellipsis pr-10 text-[12px] font-medium text-gray-700">
         {value}
       </strong>
 
       {copyable && (
-        <button
-          type="button"
-          title={`Copy ${label}`}
-          onClick={() => copyText(raw)}
-          className="absolute right-3 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md border border-gray-200 bg-white text-[#211b62] transition hover:bg-gray-50"
-        >
-          <Copy size={13} />
-        </button>
+        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+          <CopyButton
+            value={raw}
+            label={label}
+          />
+        </div>
       )}
     </div>
   );
@@ -127,7 +116,7 @@ export default function AssociateDetailModal({
         }
       >
         {loading ? (
-          <LoadingTable />
+          <TableSkeleton />
         ) : data?.error ? (
           <>
             <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
@@ -171,17 +160,11 @@ export default function AssociateDetailModal({
                     {associate.primaryCode?.code || "No code"}
                   </strong>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      copyText(
-                        associate.primaryCode?.code
-                      )
-                    }
-                    className="flex h-7 w-7 items-center justify-center rounded-md transition hover:bg-white/10"
-                  >
-                    <Copy size={13} />
-                  </button>
+                  <CopyButton
+                    value={associate.primaryCode?.code}
+                    label="referral code"
+                    variant="dark"
+                  />
 
                   <span className="rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-medium capitalize">
                     {words(associate.status)}
@@ -240,7 +223,7 @@ export default function AssociateDetailModal({
 
             {/* Performance Cards */}
 
-            <div className="grid grid-cols-2 gap-3 bg-[#f7f8fc] p-4 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 bg-[#f7f8fc] p-4 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 [
                   ShoppingBag,
@@ -266,24 +249,15 @@ export default function AssociateDetailModal({
                 ],
               ].map(
                 ([Icon, label, value]) => (
-                  <article
+                  <SummaryCard
                     key={label}
-                    className="flex items-center gap-3 rounded-lg border border-[#eadfce] bg-white p-4"
-                  >
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#fff8e9] text-[#d09a0b]">
-                      <Icon size={17} />
-                    </div>
-
-                    <div className="min-w-0">
-                      <span className="block text-[11px] font-medium text-gray-500">
-                        {label}
-                      </span>
-
-                      <strong className="mt-1 block truncate text-[17px] font-semibold text-gray-800">
-                        {value ?? 0}
-                      </strong>
-                    </div>
-                  </article>
+                    title={label}
+                    value={value ?? 0}
+                    icon={Icon}
+                    iconBg="#fff4d9"
+                    iconColor="#c48c0c"
+                    subtitle="Associate performance"
+                  />
                 )
               )}
             </div>
@@ -314,17 +288,11 @@ export default function AssociateDetailModal({
                 <>
                   {/* Contact */}
 
-                  <section className="mb-4 overflow-hidden rounded-lg border border-[#eadfce] bg-white">
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-4 py-3">
-                      <h3 className="text-[15px] font-semibold text-gray-800">
-                        Contact & account
-                      </h3>
-
-                      <span className="text-[11px] text-gray-400">
-                        Click the copy icon for reusable values
-                      </span>
-                    </div>
-
+                  <SectionCard
+                    className="mb-4"
+                    title="Contact & account"
+                    actions={<span className="text-[11px] text-gray-400">Use the copy icon for reusable values</span>}
+                  >
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                       {[
                         [
@@ -362,22 +330,15 @@ export default function AssociateDetailModal({
                         )
                       )}
                     </div>
-                  </section>
+                  </SectionCard>
 
                   {/* Wallet */}
 
-                  <section className="overflow-hidden rounded-lg border border-[#eadfce] bg-white">
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-4 py-3">
-                      <h3 className="flex items-center gap-2 text-[15px] font-semibold text-gray-800">
-                        <WalletCards size={16} />
-                        Wallet position
-                      </h3>
-
-                      <span className="text-[11px] text-gray-400">
-                        Current coin balances
-                      </span>
-                    </div>
-
+                  <SectionCard
+                    title="Wallet position"
+                    icon={<WalletCards size={17} className="mt-0.5 text-[#dca719]" />}
+                    actions={<span className="text-[11px] text-gray-400">Current coin balances</span>}
+                  >
                     <div className="grid grid-cols-2 lg:grid-cols-6">
                       {[
                         [
@@ -421,7 +382,7 @@ export default function AssociateDetailModal({
                         )
                       )}
                     </div>
-                  </section>
+                  </SectionCard>
                 </>
               )}
 
@@ -516,17 +477,10 @@ export default function AssociateDetailModal({
               {/* Bonuses */}
 
               {tab === "bonuses" && (
-                <section className="overflow-hidden rounded-lg border border-[#eadfce] bg-white">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-4 py-3">
-                    <h3 className="text-[15px] font-semibold text-gray-800">
-                      Bonus targets
-                    </h3>
-
-                    <span className="text-[11px] text-gray-400">
-                      Current achievement cycle
-                    </span>
-                  </div>
-
+                <SectionCard
+                  title="Bonus targets"
+                  actions={<span className="text-[11px] text-gray-400">Current achievement cycle</span>}
+                >
                   <div className="grid gap-3 p-4">
                     {(data?.bonusTargets || [])
                       .length ? (
@@ -573,12 +527,10 @@ export default function AssociateDetailModal({
                         )
                       )
                     ) : (
-                      <p className="py-10 text-center text-[12px] font-medium text-gray-400">
-                        No active bonus targets.
-                      </p>
+                      <NoDataState message="No active bonus targets" />
                     )}
                   </div>
-                </section>
+                </SectionCard>
               )}
             </div>
           </>
@@ -594,13 +546,7 @@ function TrackingTable({
   columns,
 }) {
   return (
-    <section className="overflow-hidden rounded-lg border border-[#eadfce] bg-white">
-      <div className="border-b border-gray-100 px-4 py-3">
-        <h3 className="text-[15px] font-semibold text-gray-800">
-          {title}
-        </h3>
-      </div>
-
+    <SectionCard title={title}>
       <div className="overflow-x-auto">
         <table className="w-full whitespace-nowrap border-collapse">
           <thead>
@@ -656,15 +602,15 @@ function TrackingTable({
                   colSpan={
                     columns.length
                   }
-                  className="h-[130px] text-center text-[12px] font-medium text-gray-400"
+                  className="p-0"
                 >
-                  No activity found
+                  <NoDataState message="No activity found" />
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
-    </section>
+    </SectionCard>
   );
 }

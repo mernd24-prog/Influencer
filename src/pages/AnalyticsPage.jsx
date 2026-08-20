@@ -18,6 +18,8 @@ import {
 
 import { api, endpoints, unwrap } from "../api";
 import PageHeader from "../components/PageHeader";
+import SectionCard from "../components/SectionCard";
+import { AnalyticsSkeleton } from "../components/PageSkeletons";
 
 const fmt = (value) =>
   new Intl.NumberFormat("en-IN", {
@@ -109,6 +111,10 @@ export default function AnalyticsPage({ session }) {
         summaryLabels[key]
     )
     .slice(0, 6);
+
+  if (loading && !data) {
+    return <AnalyticsSkeleton />;
+  }
 
   return (
     <>
@@ -246,19 +252,11 @@ export default function AnalyticsPage({ session }) {
           ) : codes.length > 1 ? (
             /* Multi Code Chart */
 
-            <section className="mb-5 overflow-hidden rounded-xl border border-[#eadfce] bg-white">
-              <div className="flex items-start justify-between border-b border-gray-100 px-5 py-4">
-                <div>
-                  <h2 className="text-[15px] font-semibold text-[#211b62]">
-                    Compare Referral Codes
-                  </h2>
-
-                  <p className="mt-1 text-[11px] text-gray-500">
-                    Orders, sales and earnings by code
-                  </p>
-                </div>
-              </div>
-
+            <SectionCard
+              className="mb-5"
+              title="Compare Referral Codes"
+              subtitle="Orders, sales and earnings by code"
+            >
               <div className="p-5">
                 <div className="mb-4 flex flex-wrap items-center gap-4">
                   <Legend
@@ -365,7 +363,7 @@ export default function AnalyticsPage({ session }) {
                   </ResponsiveContainer>
                 </div>
               </div>
-            </section>
+            </SectionCard>
           ) : (
             /* Empty State */
 
@@ -387,23 +385,16 @@ export default function AnalyticsPage({ session }) {
           {/* Associate Performance */}
 
           {data?.networkSummary && (
-            <section className="overflow-hidden rounded-xl border border-[#eadfce] bg-white">
-              <div className="flex items-center gap-3 border-b border-gray-100 bg-[#fffdf8] px-5 py-4">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f1efff] text-[#211b62]">
+            <SectionCard
+              title="Associate Performance"
+              subtitle="Combined activity from your team"
+              headerClassName="bg-[#fffdf8]"
+              icon={
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#f1efff] text-[#211b62]">
                   <Users size={17} />
                 </div>
-
-                <div>
-                  <h2 className="text-[15px] font-semibold text-[#211b62]">
-                    Associate Performance
-                  </h2>
-
-                  <p className="mt-0.5 text-[11px] text-gray-500">
-                    Combined activity from your team
-                  </p>
-                </div>
-              </div>
-
+              }
+            >
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {Object.entries(
                   data.networkSummary
@@ -427,7 +418,7 @@ export default function AnalyticsPage({ session }) {
                   )
                 )}
               </div>
-            </section>
+            </SectionCard>
           )}
         </>
       )}

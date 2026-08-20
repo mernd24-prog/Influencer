@@ -36,7 +36,12 @@ export const copyText = async (value) => {
   const text = String(value ?? "");
 
   if (navigator.clipboard && window.isSecureContext) {
-    return navigator.clipboard.writeText(text);
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Continue with the compatibility fallback below.
+    }
   }
 
   const input = document.createElement("textarea");
@@ -49,8 +54,9 @@ export const copyText = async (value) => {
   document.body.appendChild(input);
   input.select();
 
-  document.execCommand("copy");
+  const copied = document.execCommand("copy");
   input.remove();
+  return copied;
 };
 
 export const getStatusClass = (status) => {

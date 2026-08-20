@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Eye } from "lucide-react";
 
 import {
@@ -7,6 +8,8 @@ import {
   getStatusClass,
 } from "../utils/helper";
 import NoDataState from "./NoDataState";
+import { TableSkeleton } from "./Skeleton";
+import Pagination from "./Pagination";
 
 export default function ResourceTable({
   columns,
@@ -15,11 +18,22 @@ export default function ResourceTable({
   pagination = {},
   page,
   setPage,
+  pageSize,
+  setPageSize,
   loading,
   error,
   onRetry,
   onView,
 }) {
+  const hasLoadedRef = useRef(false);
+
+  if (!loading) {
+    hasLoadedRef.current = true;
+  }
+
+  const initialLoading = loading && !hasLoadedRef.current;
+  const refreshing = loading && hasLoadedRef.current;
+
   return (
     <>
       {error ? (
@@ -37,13 +51,24 @@ export default function ResourceTable({
             Try again
           </button>
         </div>
-      ) : loading ? (
+      ) : initialLoading ? (
         /* Loading State */
-        <LoadingTable />
+        <TableSkeleton />
       ) : (
         /* Table */
-        <div className="overflow-x-auto">
-          <table className="w-full whitespace-nowrap border-collapse">
+        <div className="relative">
+          {refreshing && (
+            <div
+              className="absolute inset-x-0 top-0 z-10 h-0.5 overflow-hidden bg-[#f8edcf]"
+              role="progressbar"
+              aria-label="Refreshing results"
+            >
+              <div className="h-full w-1/3 animate-pulse rounded-full bg-[#dca719]" />
+            </div>
+          )}
+
+          <div className={`overflow-x-auto transition-opacity duration-150 ${refreshing ? "opacity-70" : "opacity-100"}`}>
+            <table className="w-full whitespace-nowrap border-collapse">
             <thead>
               <tr>
                 {columns.map(([key, label]) => (
@@ -158,74 +183,23 @@ export default function ResourceTable({
 </tr>
               )}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       )}
 
-      {/* Pagination */}
-
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 bg-white px-4 py-3">
-        <span className="text-[11px] font-medium text-gray-500">
-          Page{" "}
-          {pagination.page || page}{" "}
-          of{" "}
-          {pagination.totalPages || 1}
-          {" · "}
-          {pagination.total ||
-            rows.length}{" "}
-          records
-        </span>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            disabled={
-              page <= 1 || loading
-            }
-            onClick={() =>
-              setPage(
-                (value) => value - 1
-              )
-            }
-            className="inline-flex h-8 items-center justify-center rounded-md border border-gray-200 bg-white px-3 text-[11px] font-medium text-gray-600 transition hover:border-[#dca719]/50 hover:bg-[#fffaf0] hover:text-[#211b62] disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Previous
-          </button>
-
-          <button
-            type="button"
-            disabled={
-              page >=
-                (pagination.totalPages ||
-                  1) ||
-              loading
-            }
-            onClick={() =>
-              setPage(
-                (value) => value + 1
-              )
-            }
-            className="inline-flex h-8 items-center justify-center rounded-md border border-gray-200 bg-white px-3 text-[11px] font-medium text-gray-600 transition hover:border-[#dca719]/50 hover:bg-[#fffaf0] hover:text-[#211b62] disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Next
-          </button>
-        </div>
-      </div>
+      <Pagination
+        page={pagination.page || page}
+        totalPages={pagination.totalPages || 1}
+        total={pagination.total ?? rows.length}
+        pageSize={pageSize || pagination.limit || pagination.pageSize || 20}
+        loading={loading}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize ? (size) => {
+          setPage(1);
+          setPageSize(size);
+        } : undefined}
+      />
     </>
-  );
-}
-
-function LoadingTable() {
-  return (
-    <div className="grid gap-3 p-5">
-      {[1, 2, 3, 4].map(
-        (item) => (
-          <div
-            key={item}
-            className="h-10 animate-pulse rounded-md bg-gray-100"
-          />
-        )
-      )}
-    </div>
   );
 }

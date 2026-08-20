@@ -1,7 +1,11 @@
 import {
   Check,
+  CircleDollarSign,
   Copy,
+  MousePointerClick,
   Share2,
+  ShoppingBag,
+  ShieldCheck,
 } from "lucide-react";
 
 import {
@@ -9,6 +13,7 @@ import {
 } from "react";
 
 import PageHeader from "../components/PageHeader";
+import SectionCard from "../components/SectionCard";
 import ResourceFilters from "../components/ResourceFilters";
 import ResourceTable from "../components/ResourceTable";
 
@@ -45,6 +50,8 @@ export default function ReferralCodesPage() {
 
     page,
     setPage,
+    limit,
+    setLimit,
 
     status,
     setStatus,
@@ -64,7 +71,8 @@ export default function ReferralCodesPage() {
       : null;
 
   const copyCode = async (code) => {
-    await copyText(code);
+    const copied = await copyText(code);
+    if (!copied) return;
 
     setCopiedCode(code);
 
@@ -88,7 +96,8 @@ export default function ReferralCodesPage() {
       return;
     }
 
-    await copyText(text);
+    const copied = await copyText(text);
+    if (!copied) return;
 
     setCopiedCode(row?.code);
 
@@ -167,9 +176,11 @@ export default function ReferralCodesPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
               <InfoBox
                 label="Status"
+                icon={ShieldCheck}
+                tone="emerald"
                 value={
                   <span
                     className={getStatusClass(
@@ -185,6 +196,7 @@ export default function ReferralCodesPage() {
 
               <InfoBox
                 label="Code Uses"
+                icon={MousePointerClick}
                 value={formatNumber(
                   singleCode.usageCount
                 )}
@@ -192,6 +204,8 @@ export default function ReferralCodesPage() {
 
               <InfoBox
                 label="Orders"
+                icon={ShoppingBag}
+                tone="indigo"
                 value={formatNumber(
                   singleCode
                     .totalOrdersFromCode
@@ -200,6 +214,8 @@ export default function ReferralCodesPage() {
 
               <InfoBox
                 label="Referral Sales"
+                icon={CircleDollarSign}
+                tone="gold"
                 value={formatMoney(
                   singleCode
                     .totalSalesAmount
@@ -208,6 +224,8 @@ export default function ReferralCodesPage() {
 
               <InfoBox
                 label="Coins Earned"
+                icon={CircleDollarSign}
+                tone="gold"
                 value={formatNumber(
                   singleCode
                     .totalCoinsEarned
@@ -217,7 +235,7 @@ export default function ReferralCodesPage() {
           </div>
         </section>
       ) : (
-        <section className="overflow-hidden rounded-xl border border-[#eadfce] bg-white">
+        <SectionCard>
           <ResourceFilters
             type="codes"
             search={search}
@@ -242,11 +260,13 @@ export default function ReferralCodesPage() {
             }
             page={page}
             setPage={setPage}
+            pageSize={limit}
+            setPageSize={setLimit}
             loading={loading}
             error={error}
             onRetry={load}
           />
-        </section>
+        </SectionCard>
       )}
     </>
   );
@@ -255,16 +275,28 @@ export default function ReferralCodesPage() {
 function InfoBox({
   label,
   value,
+  icon: Icon,
+  tone = "navy",
 }) {
+  const tones = {
+    navy: "bg-[#f1efff] text-[#211b62]",
+    indigo: "bg-indigo-50 text-indigo-600",
+    gold: "bg-[#fff4d9] text-[#c48c0c]",
+    emerald: "bg-emerald-50 text-emerald-600",
+  };
+
   return (
-    <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-      <span className="text-[11px] font-medium uppercase text-gray-500">
+    <div className="group relative min-h-[128px] overflow-hidden rounded-xl border border-[#e8e4da] bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[#dca719]/40 hover:shadow-[0_8px_20px_rgba(31,27,95,0.06)]">
+      <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${tones[tone]}`}>
+        <Icon size={17} strokeWidth={1.9} />
+      </div>
+      <span className="mt-4 block text-[10px] font-semibold uppercase tracking-[0.05em] text-gray-400">
         {label}
       </span>
-
-      <strong className="mt-2 block text-[16px] font-semibold text-gray-800">
+      <strong className="mt-1.5 block text-[18px] font-semibold leading-tight text-[#211b62]">
         {value}
       </strong>
+      <span className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-[#dca719] transition-transform duration-200 group-hover:scale-x-100" />
     </div>
   );
 }

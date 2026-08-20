@@ -34,6 +34,9 @@ export default function useResourceList(
   const [page, setPage] =
     useState(1);
 
+  const [limit, setLimit] =
+    useState(20);
+
   const [status, setStatus] =
     useState("");
 
@@ -53,7 +56,7 @@ export default function useResourceList(
     try {
       const params = {
         page,
-        limit: 20,
+        limit,
 
         ...(status
           ? { status }
@@ -95,6 +98,7 @@ export default function useResourceList(
   }, [
     type,
     page,
+    limit,
     status,
     fromDate,
     toDate,
@@ -136,6 +140,9 @@ export default function useResourceList(
 
     page,
     setPage,
+
+    limit,
+    setLimit,
 
     status,
     setStatus,

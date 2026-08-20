@@ -6,6 +6,7 @@ import {
   endpoints,
   unwrap,
 } from "../api";
+import { associateSchema, getZodFieldErrors } from "../validation/schemas";
 
 export default function AssociateForm({
   onClose,
@@ -26,20 +27,38 @@ export default function AssociateForm({
   const [error, setError] =
     useState("");
 
+  const [fieldErrors, setFieldErrors] =
+    useState({});
+
   const [created, setCreated] =
     useState(null);
 
-  const update = (event) =>
-    setForm((value) => ({
-      ...value,
-      [event.target.name]:
-        event.target.value,
+  const update = (event) => {
+    const { name, value } = event.target;
+    setForm((current) => ({
+      ...current,
+      [name]: value,
     }));
+
+    if (fieldErrors[name]) {
+      setFieldErrors((current) => ({ ...current, [name]: "" }));
+    }
+    if (error) setError("");
+  };
+
+  const validate = () => {
+    const result = associateSchema.safeParse(form);
+    setFieldErrors(result.success ? {} : getZodFieldErrors(result.error));
+    return result;
+  };
 
   const submit = async (
     event
   ) => {
     event.preventDefault();
+
+    const validation = validate();
+    if (!validation.success) return;
 
     setSaving(true);
     setError("");
@@ -47,13 +66,8 @@ export default function AssociateForm({
     try {
       const payload =
         Object.fromEntries(
-          Object.entries(
-            form
-          ).filter(([, value]) =>
-            String(value)
-              .trim()
-              .length
-          )
+          Object.entries(validation.data)
+            .filter(([, value]) => value.length)
         );
 
       setCreated(
@@ -165,55 +179,66 @@ export default function AssociateForm({
           <form
             className="p-5"
             onSubmit={submit}
+            noValidate
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField label="First Name *">
+              <FormField label="First Name *" error={fieldErrors.firstName}>
                 <input
                   name="firstName"
                   value={
                     form.firstName
                   }
                   onChange={update}
-                  required
-                  minLength="2"
-                  className={inputClass}
+                  maxLength={50}
+                  autoComplete="given-name"
+                  aria-invalid={Boolean(fieldErrors.firstName)}
+                  className={getInputClass(fieldErrors.firstName)}
                 />
               </FormField>
 
-              <FormField label="Last Name">
+              <FormField label="Last Name" error={fieldErrors.lastName}>
                 <input
                   name="lastName"
                   value={
                     form.lastName
                   }
                   onChange={update}
-                  className={inputClass}
+                  maxLength={50}
+                  autoComplete="family-name"
+                  aria-invalid={Boolean(fieldErrors.lastName)}
+                  className={getInputClass(fieldErrors.lastName)}
                 />
               </FormField>
 
-              <FormField label="Email Address *">
+              <FormField label="Email Address *" error={fieldErrors.email}>
                 <input
                   type="email"
                   name="email"
                   value={form.email}
                   onChange={update}
-                  required
-                  className={inputClass}
+                  maxLength={254}
+                  autoComplete="email"
+                  aria-invalid={Boolean(fieldErrors.email)}
+                  className={getInputClass(fieldErrors.email)}
                 />
               </FormField>
 
-              <FormField label="Phone Number">
+              <FormField label="Phone Number" error={fieldErrors.phone}>
                 <input
                   name="phone"
                   value={form.phone}
                   onChange={update}
-                  pattern="\+?[0-9]{7,15}"
-                  className={inputClass}
+                  maxLength={16}
+                  inputMode="tel"
+                  autoComplete="tel"
+                  aria-invalid={Boolean(fieldErrors.phone)}
+                  className={getInputClass(fieldErrors.phone)}
                 />
               </FormField>
 
               <FormField
                 label="Referral Code (optional)"
+                error={fieldErrors.code}
                 wide
               >
                 <input
@@ -221,7 +246,10 @@ export default function AssociateForm({
                   value={form.code}
                   onChange={update}
                   placeholder="Automatically generated if empty"
-                  className={inputClass}
+                  maxLength={30}
+                  autoCapitalize="characters"
+                  aria-invalid={Boolean(fieldErrors.code)}
+                  className={getInputClass(fieldErrors.code)}
                 />
               </FormField>
             </div>
@@ -267,8 +295,13 @@ export default function AssociateForm({
 const inputClass =
   "h-10 w-full rounded-md border border-gray-200 bg-white px-3 text-[12px] text-gray-700 outline-none transition placeholder:text-gray-400 hover:border-gray-300 focus:border-[#7770c8] focus:ring-2 focus:ring-[#7770c8]/10";
 
+const getInputClass = (error) => error
+  ? `${inputClass} border-red-400 bg-red-50/30 focus:border-red-500 focus:ring-red-100`
+  : inputClass;
+
 function FormField({
   label,
+  error,
   wide = false,
   children,
 }) {
@@ -285,6 +318,16 @@ function FormField({
       </span>
 
       {children}
+
+      <span
+        className={`min-h-[14px] text-[10px] font-medium leading-[14px] ${
+          error ? "text-red-500" : "invisible"
+        }`}
+        role={error ? "alert" : undefined}
+        aria-hidden={!error}
+      >
+        {error || "No error"}
+      </span>
     </label>
   );
 }

@@ -11,6 +11,8 @@ import {
 } from "../api";
 
 import PageHeader from "../components/PageHeader";
+import { SkeletonGrid } from "../components/Skeleton";
+import NoDataState from "../components/NoDataState";
 
 import {
   formatDate,
@@ -86,16 +88,11 @@ export default function BonusTargetsPage() {
       ) : loading ? (
         /* Loading State */
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {[1, 2, 3].map(
-            (item) => (
-              <div
-                key={item}
-                className="h-[200px] animate-pulse rounded-xl bg-gray-100"
-              />
-            )
-          )}
-        </div>
+        <SkeletonGrid
+          count={3}
+          className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+          itemClassName="h-[200px]"
+        />
       ) : rows.length ? (
         /* Bonus Cards */
 
@@ -211,8 +208,8 @@ export default function BonusTargetsPage() {
       ) : (
         /* Empty State */
 
-        <div className="rounded-xl border border-[#eadfce] bg-white py-20 text-center text-[12px] font-medium text-gray-400">
-          No active bonus targets
+        <div className="overflow-hidden rounded-xl border border-[#eadfce] bg-white">
+          <NoDataState message="No active bonus targets" />
         </div>
       )}
     </>

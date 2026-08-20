@@ -6,12 +6,12 @@ export default function NoDataState({
 }) {
   return (
     <div
-      className={`flex min-h-[220px] flex-col items-center justify-center gap-3 py-6 text-center ${className}`}
+      className={`flex min-h-[240px] flex-col items-center justify-center gap-3 py-7 text-center ${className}`}
     >
       <img
         src={noDataImage}
         alt="No data available"
-        className="h-25 w-25 object-contain"
+        className="h-28 w-28 object-contain sm:h-32 sm:w-32"
       />
 
       <p className="m-0 text-[12px] font-medium text-gray-500">
