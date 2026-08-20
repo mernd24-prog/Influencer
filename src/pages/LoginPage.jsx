@@ -7,7 +7,8 @@ import {
   Mail,
   ShieldCheck,
 } from "lucide-react";
-import { api, endpoints, tokens, unwrap } from "./api";
+import { api, endpoints, tokens, unwrap } from "../api";
+import BrandLogo from "../components/BrandLogo";
 
 export default function LoginPage({ onLogin }) {
   const [form, setForm] = useState({
@@ -123,27 +124,12 @@ export default function LoginPage({ onLogin }) {
         >
           {/* Small top accent */}
           <div className="absolute left-0 top-0 h-[3px] w-full bg-gradient-to-r from-[#211b62] via-[#dca719] to-[#211b62]" />
-          <div className="mb-8 text-center">
-            <div className="inline-flex flex-col items-center">
-              <div className="font-serif text-[56px] font-bold leading-none tracking-[-0.04em] text-[#c28a13]">
-                SG
-              </div>
-
-              <div className="mt-2 font-serif text-[22px] font-bold tracking-[0.18em] text-[#211b62]">
-                SAM GLOBAL
-              </div>
-
-              <div className="mt-1.5 flex items-center gap-2">
-                <span className="h-px w-7 bg-[#dca719]/60" />
-
-                <span className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#a67b18]">
-                  Enterprise Solutions
-                </span>
-
-                <span className="h-px w-7 bg-[#dca719]/60" />
-              </div>
-            </div>
-          </div>
+          <BrandLogo
+            className="mb-8 gap-1.5"
+            logoClassName="text-[56px]"
+            titleClassName="mt-1 text-[22px]"
+            subtitleClassName="text-[9px] uppercase tracking-[0.22em]"
+          />
           {/* Email */}
           <div className="mb-5">
             <label

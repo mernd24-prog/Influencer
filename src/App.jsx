@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { api, endpoints, tokens, unwrap } from "./api";
-import LoginPage from "./LoginPage";
 import Panel from "./Panel";
 import { getAllowedPanelModules, getDefaultPanelRoute } from "./panelConfig";
+import LoginPage from "./pages/LoginPage";
 
 export default function App() {
   const [session, setSession] = useState(null);
