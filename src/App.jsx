@@ -84,6 +84,13 @@ export default function App() {
       />
 
       <Route
+        path="/forgot-password"
+        element={
+          session ? <Navigate to={home} replace /> : <ForgotPasswordPage />
+        }
+      />
+
+      <Route
         path="/app/*"
         element={
           session ? (

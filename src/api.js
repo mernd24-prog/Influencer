@@ -1,6 +1,11 @@
 import axios from "axios";
 
-const baseURL = `${String(import.meta.env.VITE_API_BASE_URL || "http://localhost:4000").replace(/\/+$/, "")}/api/v1`;
+const configuredBaseURL = String(
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:4000",
+).replace(/\/+$/, "");
+export const API_BASE_URL = /\/api\/v1$/i.test(configuredBaseURL)
+  ? configuredBaseURL
+  : `${configuredBaseURL}/api/v1`;
 const ACCESS_KEY = "influencer_access_token";
 const REFRESH_KEY = "influencer_refresh_token";
 
@@ -17,7 +22,11 @@ export const tokens = {
   },
 };
 
-export const api = axios.create({ baseURL });
+export const api = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 30000,
+  headers: { Accept: "application/json" },
+});
 
 const loadingListeners = new Set();
 let activeRequests = 0;
@@ -76,7 +85,7 @@ api.interceptors.response.use((response) => {
   request._retry = true;
   try {
     if (!refreshRequest) {
-      refreshRequest = axios.post(`${baseURL}/auth/refresh`, { refreshToken })
+      refreshRequest = axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken })
         .then((response) => {
           const refreshed = response?.data?.data?.tokens || response?.data?.data || response?.data?.tokens || response?.data;
           tokens.set(refreshed);
