@@ -13,6 +13,10 @@ import {
 
 import { api, endpoints, unwrap } from "../api";
 import PageHeader from "../components/PageHeader";
+import SectionCard from "../components/SectionCard";
+import { ProfileSkeleton } from "../components/PageSkeletons";
+import ThemedSelect from "../components/ThemedSelect";
+import { getFirstZodError, profileSchema } from "../validation/schemas";
 
 const empty = {
   firstName: "",
@@ -267,6 +271,13 @@ export default function ProfilePage({ session }) {
   const submit = async (event) => {
     event.preventDefault();
 
+    const validation = profileSchema.safeParse(form);
+    if (!validation.success) {
+      setError(getFirstZodError(validation.error));
+      setMessage("");
+      return;
+    }
+
     setSaving(true);
     setError("");
     setMessage("");
@@ -275,7 +286,7 @@ export default function ProfilePage({ session }) {
       const next = unwrap(
         await api.patch(
           endpoints.profile,
-          form
+          validation.data
         )
       );
 
@@ -296,20 +307,7 @@ export default function ProfilePage({ session }) {
   };
 
   if (loading) {
-    return (
-      <div className="grid gap-4">
-        <div className="h-16 animate-pulse rounded-xl bg-gray-100" />
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="h-28 animate-pulse rounded-xl bg-gray-100" />
-          <div className="h-28 animate-pulse rounded-xl bg-gray-100" />
-        </div>
-
-        <div className="h-40 animate-pulse rounded-xl bg-gray-100" />
-
-        <div className="h-[300px] animate-pulse rounded-xl bg-gray-100" />
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   return (
@@ -393,33 +391,18 @@ export default function ProfilePage({ session }) {
 
       {/* Account Identity */}
 
-      <section className="mb-5 overflow-hidden rounded-xl border border-[#eadfce] bg-white">
-        <div className="border-b border-gray-100 px-5 py-4">
-          <div className="flex items-center gap-2">
-            <LockKeyhole
-              size={16}
-              className="text-[#dca719]"
-            />
-
-            <h2 className="text-[15px] font-semibold text-[#211b62]">
-              Account Identity
-            </h2>
+      <SectionCard
+        className="mb-5"
+        title="Account Identity"
+        subtitle="These details are managed by Admin and cannot be edited."
+        headerClassName="bg-[#fffdf8]"
+        icon={
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f1efff] text-[#211b62]">
+            <LockKeyhole size={16} />
           </div>
-
-          <p className="mt-1 text-[11px] leading-5 text-gray-400">
-            These details are managed by Admin and cannot be edited.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 divide-y divide-gray-100 md:grid-cols-3 md:divide-x md:divide-y-0">
-          <IdentityItem
-            label="Referral ID"
-            value={
-              session?.influencerId ||
-              "—"
-            }
-          />
-
+        }
+      >
+        <div className="grid grid-cols-1 divide-y divide-gray-100 md:grid-cols-2 md:divide-x md:divide-y-0">
           <IdentityItem
             label="Referral Code"
             value={
@@ -436,7 +419,7 @@ export default function ProfilePage({ session }) {
             }
           />
         </div>
-      </section>
+      </SectionCard>
 
       {/* Profile Form */}
 
@@ -445,7 +428,6 @@ export default function ProfilePage({ session }) {
         onSubmit={submit}
       >
         <FormSection
-          number="01"
           icon={<UserRound size={16} />}
           title="Basic Information"
           subtitle="Your personal account details"
@@ -502,6 +484,8 @@ export default function ProfilePage({ session }) {
 
           <UploadField
             label="Profile Picture"
+            kind="image"
+            wide
             value={form.avatarUrl}
             accept="image/jpeg,image/png,image/webp,image/gif"
             uploading={
@@ -522,7 +506,6 @@ export default function ProfilePage({ session }) {
         {/* Address */}
 
         <FormSection
-          number="02"
           icon={<MapPin size={16} />}
           title="Address Details"
           subtitle="Your current residential address"
@@ -606,7 +589,6 @@ export default function ProfilePage({ session }) {
         {/* KYC */}
 
         <FormSection
-          number="03"
           icon={<FileText size={16} />}
           title="KYC Documents"
           subtitle="Upload the required verification documents"
@@ -668,7 +650,6 @@ export default function ProfilePage({ session }) {
         {/* Payout */}
 
         <FormSection
-          number="04"
           icon={<CreditCard size={16} />}
           title="Payout Information"
           subtitle="Add the account where you want to receive payouts"
@@ -840,19 +821,14 @@ function IdentityItem({
 }
 
 function FormSection({
-  number,
   icon,
   title,
   subtitle,
   children,
 }) {
   return (
-    <section className="overflow-hidden rounded-xl border border-[#eadfce] bg-white">
+    <section className="overflow-hidden rounded-xl border border-[#eadfce] bg-white shadow-[0_1px_3px_rgba(31,27,95,0.04)]">
       <div className="flex items-center gap-3 border-b border-gray-100 bg-[#fffdf8] px-5 py-4">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#fff2cd] text-[11px] font-bold text-[#b98600]">
-          {number}
-        </div>
-
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f1efff] text-[#211b62]">
           {icon}
         </div>
@@ -884,12 +860,15 @@ function Field({
   type = "text",
   required = false,
   wide = false,
+  desktopWide = false,
 }) {
   return (
     <label
       className={`grid min-w-0 gap-1.5 ${
         wide
           ? "md:col-span-2 xl:col-span-2"
+          : desktopWide
+            ? "xl:col-span-2"
           : ""
       }`}
     >
@@ -930,31 +909,16 @@ function Select({
         {label}
       </span>
 
-      <select
+      <ThemedSelect
         value={value || ""}
-        onChange={(event) =>
-          onChange(
-            event.target.value
-          )
-        }
-        className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-[12px] capitalize text-gray-700 outline-none transition hover:border-gray-300 focus:border-[#dca719] focus:ring-2 focus:ring-[#dca719]/10"
-      >
-        {options.map(
-          (option) => (
-            <option
-              key={option}
-              value={option}
-            >
-              {option
-                ? option.replaceAll(
-                    "_",
-                    " "
-                  )
-                : "Select"}
-            </option>
-          )
-        )}
-      </select>
+        ariaLabel={label}
+        onChange={onChange}
+        className="h-10 rounded-lg border-gray-200 text-[12px] capitalize"
+        options={options.map((option) => ({
+          value: option,
+          label: option ? option.replaceAll("_", " ") : "Select",
+        }))}
+      />
     </label>
   );
 }
@@ -965,15 +929,23 @@ function UploadField({
   onFile,
   uploading,
   accept = "application/pdf,image/jpeg,image/png,image/webp",
+  kind = "document",
+  wide = false,
 }) {
+  const isImage = kind === "image";
+
   return (
-    <div className="grid min-w-0 gap-1.5">
+    <div
+      className={`grid min-w-0 grid-rows-[auto_120px_20px] gap-1.5 ${
+        wide ? "md:col-span-2 xl:col-span-3" : ""
+      }`}
+    >
       <span className="text-[11px] font-medium text-gray-600">
         {label}
       </span>
 
       <label
-        className={`group relative flex min-h-[120px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-4 py-4 text-center transition ${
+        className={`group relative flex h-[120px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-4 py-4 text-center transition ${
           value
             ? "border-emerald-300 bg-emerald-50/30"
             : "border-gray-300 bg-gray-50/50 hover:border-[#dca719] hover:bg-[#fffaf0]"
@@ -1016,29 +988,33 @@ function UploadField({
           {uploading
             ? "Uploading to cloud…"
             : value
-              ? "Document uploaded"
-              : "Choose file to upload"}
+              ? `${isImage ? "Image" : "Document"} uploaded`
+              : `Choose ${isImage ? "image" : "file"} to upload`}
         </strong>
 
         <small className="mt-1 text-[11px] text-gray-400">
           {value
             ? "Click to replace"
-            : "PDF, JPG, PNG or WEBP"}
+            : isImage
+              ? "JPG, PNG, WEBP or GIF"
+              : "PDF, JPG, PNG or WEBP"}
         </small>
       </label>
 
+      <div className="flex h-5 items-center">
       {value && (
         <a
           href={value}
           target="_blank"
           rel="noreferrer"
-          className="mt-1 inline-flex w-fit items-center gap-1.5 text-[11px] font-medium text-[#211b62] hover:text-[#dca719]"
+          className="inline-flex w-fit items-center gap-1.5 text-[11px] font-medium text-[#211b62] hover:text-[#dca719]"
         >
           <ExternalLink size={12} />
 
-          View uploaded file
+          View uploaded {isImage ? "image" : "file"}
         </a>
       )}
+      </div>
     </div>
   );
 }

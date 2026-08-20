@@ -9,6 +9,11 @@ import {
 
 import { api, endpoints, unwrap } from "../api";
 import PageHeader from "../components/PageHeader";
+import SectionCard from "../components/SectionCard";
+import { WithdrawalsSkeleton } from "../components/PageSkeletons";
+import NoDataState from "../components/NoDataState";
+import ThemedSelect from "../components/ThemedSelect";
+import { createWithdrawalSchema, getFirstZodError } from "../validation/schemas";
 
 const number = (value) =>
   new Intl.NumberFormat("en-IN", {
@@ -295,58 +300,17 @@ export default function WithdrawalsPage() {
     setError("");
     setMessage("");
 
-    const requestedAmount = Number(
-      form.amount
-    );
+    const validation = createWithdrawalSchema({
+      minimum: minimumWithdrawal,
+      maximum: maximumWithdrawal,
+    }).safeParse(form);
 
-    if (
-      !Number.isFinite(requestedAmount) ||
-      requestedAmount <= 0
-    ) {
-      setError(
-        "Enter a valid withdrawal amount greater than zero."
-      );
-
+    if (!validation.success) {
+      setError(getFirstZodError(validation.error));
       return;
     }
 
-    if (
-      requestedAmount <
-      minimumWithdrawal
-    ) {
-      setError(
-        `Minimum withdrawal is ${number(
-          minimumWithdrawal
-        )} coins.`
-      );
-
-      return;
-    }
-
-    if (
-      requestedAmount >
-      maximumWithdrawal
-    ) {
-      setError(
-        `You can withdraw up to ${number(
-          maximumWithdrawal
-        )} coins.`
-      );
-
-      return;
-    }
-
-    if (
-      !/^\d+(?:\.\d{1,2})?$/.test(
-        String(form.amount).trim()
-      )
-    ) {
-      setError(
-        "Withdrawal amount can have at most 2 decimal places."
-      );
-
-      return;
-    }
+    const requestedAmount = Number(validation.data.amount);
 
     setSaving(true);
 
@@ -368,16 +332,16 @@ export default function WithdrawalsPage() {
           payoutMethod: "upi",
           destinationSource:
             "one_time",
-          upiId: form.upiId,
+          upiId: validation.data.upiId,
         },
 
         upi_qr: {
           payoutMethod: "upi_qr",
           destinationSource:
             "one_time",
-          upiId: form.upiId,
+          upiId: validation.data.upiId,
           payoutQrUrl:
-            form.payoutQrUrl,
+            validation.data.payoutQrUrl,
         },
       };
 
@@ -416,6 +380,10 @@ export default function WithdrawalsPage() {
       setSaving(false);
     }
   };
+
+  if (loading && !Object.keys(wallet).length && !rows.length) {
+    return <WithdrawalsSkeleton />;
+  }
 
   const showPaidAt = rows.some(
     (row) => row.paidAt
@@ -609,56 +577,25 @@ export default function WithdrawalsPage() {
               </Field>
 
               <Field label="Transfer destination *">
-                <select
-                  value={
-                    form.destination
-                  }
-                  onChange={(event) =>
+                <ThemedSelect
+                  value={form.destination}
+                  ariaLabel="Transfer destination"
+                  onChange={(destination) =>
                     setForm({
                       ...form,
-
-                      destination:
-                        event.target.value,
-
+                      destination,
                       upiId: "",
-
                       payoutQrUrl: "",
                     })
                   }
-                  className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-[12px] text-gray-700 outline-none transition hover:border-gray-300 focus:border-[#dca719] focus:ring-2 focus:ring-[#dca719]/10"
-                >
-                  <option
-                    value="saved_upi"
-                    disabled={
-                      !savedUpiReady
-                    }
-                  >
-                    Saved UPI
-                    {savedUpiReady
-                      ? ` — ${savedPayout.upiId}`
-                      : " — not configured"}
-                  </option>
-
-                  <option
-                    value="saved_bank"
-                    disabled={
-                      !savedBankReady
-                    }
-                  >
-                    Saved bank
-                    {savedBankReady
-                      ? ` — ${maskedAccount}`
-                      : " — not configured"}
-                  </option>
-
-                  <option value="one_time_upi">
-                    Use another UPI ID
-                  </option>
-
-                  <option value="upi_qr">
-                    Use UPI QR
-                  </option>
-                </select>
+                  className="h-10 rounded-lg border-gray-200 text-[12px]"
+                  options={[
+                    { value: "saved_upi", label: `Saved UPI — ${savedUpiReady ? savedPayout.upiId : "not configured"}`, disabled: !savedUpiReady },
+                    { value: "saved_bank", label: `Saved bank — ${savedBankReady ? maskedAccount : "not configured"}`, disabled: !savedBankReady },
+                    { value: "one_time_upi", label: "Use another UPI ID" },
+                    { value: "upi_qr", label: "Use UPI QR" },
+                  ]}
+                />
               </Field>
 
               {/* Saved Bank */}
@@ -856,18 +793,10 @@ export default function WithdrawalsPage() {
 
       {/* Payout History */}
 
-      <section className="overflow-hidden rounded-xl border border-[#eadfce] bg-white">
-        <div className="border-b border-gray-100 px-5 py-4">
-          <h2 className="text-[15px] font-semibold text-[#211b62]">
-            Payout History
-          </h2>
-
-          <p className="mt-1 text-[11px] leading-5 text-gray-500">
-            Approval reserves the coins. Paid Coins update only after Admin transfers the
-            money and records the UTR.
-          </p>
-        </div>
-
+      <SectionCard
+        title="Payout History"
+        subtitle="Approval reserves the coins. Paid Coins update only after Admin transfers the money and records the UTR."
+      >
         <div className="overflow-x-auto">
           <table className="w-full whitespace-nowrap border-collapse">
             <thead>
@@ -1035,16 +964,16 @@ export default function WithdrawalsPage() {
                       visibleColumnCount +
                       1
                     }
-                    className="h-[160px] text-center text-[12px] font-medium text-gray-400"
+                    className="p-0"
                   >
-                    No payout requests yet
+                    <NoDataState message="No payout requests yet" />
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-      </section>
+      </SectionCard>
     </>
   );
 }

@@ -4,6 +4,7 @@ import PageHeader from "../components/PageHeader";
 import ResourceFilters from "../components/ResourceFilters";
 import ResourceTable from "../components/ResourceTable";
 import SummaryCard from "../components/SummaryCard";
+import SectionCard from "../components/SectionCard";
 
 import AssociateDetailModal from "../components/AssociateDetailModal";
 import AssociateForm from "../components/AssociateForm";
@@ -60,6 +61,8 @@ export default function AssociatesPage({
 
     page,
     setPage,
+    limit,
+    setLimit,
 
     status,
     setStatus,
@@ -188,17 +191,10 @@ export default function AssociatesPage({
 
       {/* Associates Table */}
 
-      <section className="overflow-hidden rounded-xl border border-[#eadfce] bg-white shadow-[0_1px_3px_rgba(31,27,95,0.04)]">
-        <div className="border-b border-gray-100 px-5 py-4">
-          <h2 className="text-[15px] font-semibold text-[#211b62]">
-            Associate Details
-          </h2>
-
-          <p className="mt-1 text-[11px] leading-5 text-gray-500">
-            Review your associates, referral activity, sales, coins, and customer performance.
-          </p>
-        </div>
-
+      <SectionCard
+        title="Associate Details"
+        subtitle="Review your associates, referral activity, sales, coins, and customer performance."
+      >
         <ResourceFilters
           type="network"
           search={search}
@@ -223,12 +219,14 @@ export default function AssociatesPage({
           }
           page={page}
           setPage={setPage}
+          pageSize={limit}
+          setPageSize={setLimit}
           loading={loading}
           error={error}
           onRetry={load}
           onView={openDetails}
         />
-      </section>
+      </SectionCard>
 
       {/* Associate Details */}
 

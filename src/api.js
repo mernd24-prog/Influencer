@@ -18,15 +18,56 @@ export const tokens = {
 };
 
 export const api = axios.create({ baseURL });
+
+const loadingListeners = new Set();
+let activeRequests = 0;
+
+const notifyLoading = () => {
+  loadingListeners.forEach((listener) => listener(activeRequests));
+};
+
+const startLoading = (config) => {
+  const shouldTrack = config.globalLoader ?? config.method?.toLowerCase() !== "get";
+
+  if (shouldTrack && !config.__tracksGlobalLoader) {
+    config.__tracksGlobalLoader = true;
+    activeRequests += 1;
+    notifyLoading();
+  }
+  return config;
+};
+
+const stopLoading = (config) => {
+  if (config?.__tracksGlobalLoader) {
+    config.__tracksGlobalLoader = false;
+    activeRequests = Math.max(0, activeRequests - 1);
+    notifyLoading();
+  }
+};
+
+export const subscribeToApiLoading = (listener) => {
+  loadingListeners.add(listener);
+  listener(activeRequests);
+  return () => loadingListeners.delete(listener);
+};
+
 api.interceptors.request.use((config) => {
+  startLoading(config);
   const token = tokens.access();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
+}, (error) => {
+  stopLoading(error.config);
+  return Promise.reject(error);
 });
 
 let refreshRequest;
-api.interceptors.response.use((response) => response, async (error) => {
+api.interceptors.response.use((response) => {
+  stopLoading(response.config);
+  return response;
+}, async (error) => {
   const request = error.config;
+  stopLoading(request);
   const refreshToken = tokens.refresh();
   if (error.response?.status !== 401 || request?._retry || !refreshToken || request?.url?.includes("/auth/refresh")) {
     return Promise.reject(error);

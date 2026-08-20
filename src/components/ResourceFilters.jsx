@@ -10,6 +10,8 @@ import {
 import {
   formatLabel,
 } from "../utils/helper";
+import ThemedSelect from "./ThemedSelect";
+import DateRangeFilter from "./DateRangeFilter";
 
 export default function ResourceFilters({
   type,
@@ -27,6 +29,19 @@ export default function ResourceFilters({
   showScope = false,
   showDates = true,
 }) {
+  const activeFilterCount =
+    Number(Boolean(status)) +
+    Number(showScope && scope && scope !== "all") +
+    Number(Boolean(fromDate || toDate));
+
+  const clearFilters = () => {
+    setPage(1);
+    if (setStatus) setStatus("");
+    if (setScope) setScope("all");
+    if (setFromDate) setFromDate("");
+    if (setToDate) setToDate("");
+  };
+
   return (
     <div className="border-b border-gray-100 bg-white">
       {/* =========================
@@ -64,10 +79,10 @@ export default function ResourceFilters({
           type
         ] ||
         showDates) && (
-        <div className="border-t border-gray-100 bg-[#fffdf8] px-4 py-4">
+        <div className="border-t border-gray-100 bg-[#fffdf8] px-4 py-3">
           {/* Filter Heading */}
 
-          <div className="mb-4 flex items-center gap-2">
+          <div className="mb-2.5 flex items-center gap-2">
             <Filter
               size={14}
               className="text-gray-500"
@@ -76,6 +91,22 @@ export default function ResourceFilters({
             <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
               Filters
             </span>
+
+            {activeFilterCount > 0 && (
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#dca719] px-1.5 text-[10px] font-bold text-white">
+                {activeFilterCount}
+              </span>
+            )}
+
+            {activeFilterCount > 0 && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="resource-filter-clear ml-auto inline-flex h-7 items-center rounded-md border border-red-100 bg-white px-3 font-semibold text-red-500 transition hover:bg-red-50"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
 
           {/* Filter Fields */}
@@ -85,30 +116,19 @@ export default function ResourceFilters({
 
             {showScope && (
               <FilterField label="Scope">
-                <select
+                <ThemedSelect
                   value={scope}
-                  onChange={(event) => {
+                  ariaLabel="Order scope"
+                  onChange={(value) => {
                     setPage(1);
-
-                    setScope(
-                      event.target
-                        .value
-                    );
+                    setScope(value);
                   }}
-                  className={selectClass}
-                >
-                  <option value="all">
-                    All referred orders
-                  </option>
-
-                  <option value="own">
-                    My codes only
-                  </option>
-
-                  <option value="children">
-                    Associate codes only
-                  </option>
-                </select>
+                  options={[
+                    { value: "all", label: "All referred orders" },
+                    { value: "own", label: "My codes only" },
+                    { value: "children", label: "Associate codes only" },
+                  ]}
+                />
               </FilterField>
             )}
 
@@ -118,80 +138,31 @@ export default function ResourceFilters({
               type
             ] && (
               <FilterField label="Status">
-                <select
+                <ThemedSelect
                   value={status}
-                  onChange={(event) => {
+                  ariaLabel="Status"
+                  onChange={(value) => {
                     setPage(1);
-
-                    setStatus(
-                      event.target
-                        .value
-                    );
+                    setStatus(value);
                   }}
-                  className={selectClass}
-                >
-                  <option value="">
-                    All statuses
-                  </option>
-
-                  {RESOURCE_STATUS_OPTIONS[
-                    type
-                  ].map(
-                    (item) => (
-                      <option
-                        key={item}
-                        value={item}
-                      >
-                        {formatLabel(
-                          item
-                        )}
-                      </option>
-                    )
-                  )}
-                </select>
-              </FilterField>
-            )}
-
-            {/* From Date */}
-
-            {showDates && (
-              <FilterField label="From">
-                <input
-                  type="date"
-                  value={fromDate}
-                  onChange={(
-                    event
-                  ) => {
-                    setPage(1);
-
-                    setFromDate(
-                      event.target
-                        .value
-                    );
-                  }}
-                  className={dateInputClass}
+                  options={[
+                    { value: "", label: "All statuses" },
+                    ...RESOURCE_STATUS_OPTIONS[type].map((item) => ({ value: item, label: formatLabel(item) })),
+                  ]}
                 />
               </FilterField>
             )}
 
-            {/* To Date */}
-
             {showDates && (
-              <FilterField label="To">
-                <input
-                  type="date"
-                  value={toDate}
-                  onChange={(
-                    event
-                  ) => {
+              <FilterField label="Date Range">
+                <DateRangeFilter
+                  fromDate={fromDate}
+                  toDate={toDate}
+                  onApply={(from, to) => {
                     setPage(1);
-
-                    setToDate(
-                      event.target
-                        .value
-                    );
+                    setFromDate(from);
+                    setToDate(to);
                   }}
-                  className={dateInputClass}
                 />
               </FilterField>
             )}
@@ -202,22 +173,17 @@ export default function ResourceFilters({
   );
 }
 
-const selectClass =
-  "h-10 w-full rounded-md border border-[#eadfce] bg-white px-3 text-[12px] font-medium text-gray-600 outline-none transition hover:border-gray-300 focus:border-[#dca719] focus:ring-2 focus:ring-[#dca719]/10";
-
-const dateInputClass =
-  "h-10 w-full rounded-md border border-[#eadfce] bg-white px-3 text-[10px] font-medium text-gray-600 outline-none transition hover:border-gray-300 focus:border-[#dca719] focus:ring-2 focus:ring-[#dca719]/10";
 function FilterField({
   label,
   children,
 }) {
   return (
-    <label className="grid min-w-0 gap-1.5">
-      <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+    <div className="grid min-w-0 gap-1">
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
         {label}
       </span>
 
       {children}
-    </label>
+    </div>
   );
 }

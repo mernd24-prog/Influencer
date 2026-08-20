@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { api, endpoints, tokens, unwrap } from "../api";
 import BrandLogo from "../components/BrandLogo";
+import { getZodFieldErrors, loginSchema, PASSWORD_MAX_LENGTH } from "../validation/schemas";
 
 export default function LoginPage({ onLogin }) {
   const [form, setForm] = useState({
@@ -42,22 +43,9 @@ export default function LoginPage({ onLogin }) {
   };
 
   const validateForm = () => {
-    const nextErrors = {};
-    const email = form.email.trim();
-
-    if (!email) {
-      nextErrors.email = "Email address is required.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      nextErrors.email = "Please enter a valid email address.";
-    }
-
-    if (!form.password) {
-      nextErrors.password = "Password is required.";
-    }
-
-    setErrors(nextErrors);
-
-    return Object.keys(nextErrors).length === 0;
+    const result = loginSchema.safeParse(form);
+    setErrors(result.success ? {} : getZodFieldErrors(result.error));
+    return result.success;
   };
 
   const submit = async (event) => {
@@ -191,7 +179,7 @@ export default function LoginPage({ onLogin }) {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
-                maxLength={16}
+                maxLength={PASSWORD_MAX_LENGTH}
                 value={form.password}
                 onChange={handleChange}
                 placeholder="••••••••"
@@ -217,11 +205,7 @@ export default function LoginPage({ onLogin }) {
                 {errors.password}
               </p>
             ) : (
-              <div className="mt-2 flex items-center justify-between">
-                <p className="m-0 text-[10px] text-[#9ca3af]">
-                  Maximum 16 characters
-                </p>
-
+              <div className="mt-2 flex items-center justify-end">
                 <div className="flex items-center gap-1 text-[10px] font-medium text-[#7c7465]">
                   <ShieldCheck size={12} className="text-[#c89318]" />
                   Secure login

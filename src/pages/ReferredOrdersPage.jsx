@@ -2,6 +2,7 @@ import PageHeader from "../components/PageHeader";
 import ResourceFilters from "../components/ResourceFilters";
 import ResourceTable from "../components/ResourceTable";
 import SummaryCard from "../components/SummaryCard";
+import SectionCard from "../components/SectionCard";
 
 import useResourceList from "../hooks/useResourceList";
 
@@ -37,6 +38,8 @@ export default function ReferredOrdersPage({
 
     page,
     setPage,
+    limit,
+    setLimit,
 
     status,
     setStatus,
@@ -131,17 +134,10 @@ export default function ReferredOrdersPage({
 
       {/* Orders Table */}
 
-      <section className="overflow-hidden rounded-xl border border-[#eadfce] bg-white shadow-[0_1px_3px_rgba(31,27,95,0.04)]">
-        <div className="border-b border-gray-100 px-5 py-4">
-          <h2 className="text-[15px] font-semibold text-[#211b62]">
-            Referral Order Details
-          </h2>
-
-          <p className="mt-1 text-[11px] text-gray-500">
-            Review orders generated through your referral codes and track earned coins.
-          </p>
-        </div>
-
+      <SectionCard
+        title="Referral Order Details"
+        subtitle="Review orders generated through your referral codes and track earned coins."
+      >
         <ResourceFilters
           type="orders"
           search={search}
@@ -169,11 +165,13 @@ export default function ReferredOrdersPage({
           pagination={pagination}
           page={page}
           setPage={setPage}
+          pageSize={limit}
+          setPageSize={setLimit}
           loading={loading}
           error={error}
           onRetry={load}
         />
-      </section>
+      </SectionCard>
     </>
   );
 }
