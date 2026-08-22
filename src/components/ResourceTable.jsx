@@ -68,7 +68,7 @@ export default function ResourceTable({
           )}
 
           <div className={`overflow-x-auto transition-opacity duration-150 ${refreshing ? "opacity-70" : "opacity-100"}`}>
-            <table className="w-full whitespace-nowrap border-collapse">
+            <table className="w-full table-fixed whitespace-nowrap border-collapse">
             <thead>
               <tr>
                 {columns.map(([key, label]) => (

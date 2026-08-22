@@ -359,7 +359,7 @@ export default function DashboardPage({
                     </div>
                   </div>
 
-                  <div className="status-legend !gap-2.5">
+                  <div className="status-legend dashboard-status-legend !gap-2.5">
                     {statuses
                       .slice(0, 5)
                       .map(
@@ -381,21 +381,12 @@ export default function DashboardPage({
                                   "#1F1B5F",
                               }}
                             />
-
                             <span className="!text-[11px]">
-                              {String(
-                                row.status ||
-                                  "—"
-                              ).replaceAll(
-                                "_",
-                                " "
-                              )}
+                              {String(row.status || "—").replaceAll("_", " ")}
                             </span>
 
                             <strong className="!text-[12px]">
-                              {integer(
-                                row.value
-                              )}
+                              {integer(row.value)}
                             </strong>
                           </div>
                         )

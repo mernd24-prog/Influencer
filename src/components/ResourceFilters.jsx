@@ -82,7 +82,7 @@ export default function ResourceFilters({
         <div className="border-t border-gray-100 bg-[#fffdf8] px-4 py-3">
           {/* Filter Heading */}
 
-          <div className="mb-2.5 flex items-center gap-2">
+          <div className="mb-2.5 flex min-h-7 items-center gap-2">
             <Filter
               size={14}
               className="text-gray-500"
