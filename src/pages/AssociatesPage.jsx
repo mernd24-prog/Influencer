@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Copy, Share2 } from "lucide-react";
 
 import PageHeader from "../components/PageHeader";
 import ResourceFilters from "../components/ResourceFilters";
@@ -176,6 +177,38 @@ export default function AssociatesPage({
           setShowCreate(true)
         }
       />
+
+      {session?.childRegistration?.shareable && (
+        <SectionCard
+          title="Associate registration QR"
+          subtitle="Share this QR or link. Registrations are linked to you and remain blocked until Admin approval."
+        >
+          <div className="flex flex-col items-center gap-4 p-5 sm:flex-row sm:items-start">
+            {session.childRegistration.qrDataUrl && (
+              <img
+                src={session.childRegistration.qrDataUrl}
+                alt="Associate registration QR code"
+                className="h-44 w-44 rounded-lg border border-[#eadfce] bg-white p-2"
+              />
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="break-all rounded-lg border border-[#eadfce] bg-[#fffaf0] p-3 text-xs text-[#55515f]">
+                {session.childRegistration.registrationUrl}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button className="button" type="button" onClick={() => navigator.clipboard.writeText(session.childRegistration.registrationUrl)}>
+                  <Copy size={15} /> Copy link
+                </button>
+                {navigator.share && (
+                  <button className="button secondary" type="button" onClick={() => navigator.share({ title: "Associate registration", url: session.childRegistration.registrationUrl })}>
+                    <Share2 size={15} /> Share
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </SectionCard>
+      )}
 
       {/* Summary Cards */}
 

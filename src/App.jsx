@@ -5,6 +5,7 @@ import Panel from "./Panel";
 import { getAllowedPanelModules, getDefaultPanelRoute } from "./panelConfig";
 import LoginPage from "./pages/LoginPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import RegisterPage from "./pages/RegisterPage";
 
 export default function App() {
   const [session, setSession] =
@@ -81,6 +82,11 @@ export default function App() {
             />
           )
         }
+      />
+
+      <Route
+        path="/register"
+        element={session ? <Navigate to={home} replace /> : <RegisterPage />}
       />
 
       <Route

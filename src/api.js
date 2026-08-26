@@ -108,6 +108,8 @@ api.interceptors.response.use((response) => {
 export const unwrap = (response) => response?.data?.data ?? response?.data;
 export const endpoints = {
   login: "/auth/influencer/login",
+  registrationInvite: (inviteCode) => `/auth/influencer/invites/${encodeURIComponent(inviteCode)}`,
+  register: "/auth/influencer/register",
   forgotPassword: "/auth/influencer/forgot-password",
   verifyResetOtp: "/auth/influencer/verify-reset-otp",
   resetPassword: "/auth/influencer/reset-password",

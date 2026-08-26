@@ -26,7 +26,6 @@ export const getAllowedPanelModules = (session = {}) => {
   const backendModules = Array.isArray(session.allowedModules)
     ? session.allowedModules
     : [];
-  const isParent = session.influencerType === INFLUENCER_TYPES.PARENT;
 
   return backendModules.filter((module) => {
     const key = String(module?.key || "").trim();
@@ -34,7 +33,7 @@ export const getAllowedPanelModules = (session = {}) => {
       return false;
     }
     if (COMMON_MODULES.has(key)) return true;
-    return isParent && PARENT_ONLY_MODULES.has(key);
+    return session.canCreateChildren === true && PARENT_ONLY_MODULES.has(key);
   });
 };
 

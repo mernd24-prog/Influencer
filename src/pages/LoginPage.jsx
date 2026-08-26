@@ -243,6 +243,12 @@ export default function LoginPage({ onLogin }) {
               </>
             )}
           </button>
+          <p className="mt-4 text-center text-xs text-[#6f7280]">
+            Have a partner invitation?{" "}
+            <Link to="/register" className="font-semibold text-[#211b62] hover:text-[#c28a13]">
+              Register as an associate
+            </Link>
+          </p>
         </form>
 
         {/* Footer */}
