@@ -334,17 +334,19 @@ export default function ProfilePage({ session }) {
               <div className="mt-2">
                 <span
                   className={statusClass(
-                    record?.kycStatus
+                    record?.kyc?.status
                   )}
                 >
                   {formatStatus(
-                    record?.kycStatus
+                    record?.kyc?.status
                   )}
                 </span>
               </div>
 
               <small className="mt-2 block text-[11px] leading-5 text-gray-400">
-                Required before withdrawing coins
+                {record?.kyc?.status === "rejected"
+                  ? record?.kyc?.review?.reason || "Rejected by Admin. Update and resubmit your documents."
+                  : "Required before your referral code and sharing tools are enabled"}
               </small>
             </div>
 
@@ -375,7 +377,9 @@ export default function ProfilePage({ session }) {
               </div>
 
               <small className="mt-2 block text-[11px] leading-5 text-gray-400">
-                {record?.payoutProfile
+                {record?.payoutProfile?.status === "rejected"
+                  ? record?.payoutProfile?.review?.reason || "Rejected by Admin. Update and resubmit your bank details."
+                  : record?.payoutProfile
                   ?.bankOrUpiConfigured
                   ? "Bank or UPI details configured"
                   : "Add bank or UPI details below"}
@@ -407,7 +411,7 @@ export default function ProfilePage({ session }) {
             label="Referral Code"
             value={
               record?.primaryCode?.code ||
-              "Not assigned"
+              "Hidden until KYC and bank approval"
             }
           />
 
