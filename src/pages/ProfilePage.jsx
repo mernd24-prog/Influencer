@@ -294,7 +294,9 @@ export default function ProfilePage({ session }) {
       setForm(merge(next));
 
       setMessage(
-        "Profile submitted successfully. KYC and payout changes may require Admin approval."
+        next?.kyc?.status === "verified" && next?.payoutProfile?.status === "verified"
+          ? "Profile updated successfully."
+          : "Details submitted for Admin approval. Your referral codes cannot be used on orders until KYC and bank details are approved."
       );
     } catch (err) {
       setError(
@@ -320,6 +322,17 @@ export default function ProfilePage({ session }) {
         loading={loading}
         onRefresh={load}
       />
+
+      <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+        Name and profile photo updates take effect immediately. Changes to phone,
+        personal details, address, KYC documents, or bank/UPI details require Admin
+        approval. Your referral codes cannot be used on orders while approval is pending.
+      </div>
+      {record && (record?.kyc?.status !== "verified" || record?.payoutProfile?.status !== "verified") && (
+        <p role="status" className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          Referral codes are unavailable for checkout until Admin approves your KYC and bank/UPI details.
+        </p>
+      )}
 
       {/* Verification Status */}
 
